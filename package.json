@@ -12,6 +12,7 @@
   "dependencies": {
     "@octokit/auth-basic": "^1.4.6",
     "@octokit/rest": "^18.0.3",
+    "@tronscan/client": "^0.2.67",
     "bitcoinjs-lib": "^5.1.10",
     "bs58": "^4.0.1",
     "chalk": "^4.1.0",

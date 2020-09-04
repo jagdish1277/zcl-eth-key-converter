@@ -9,6 +9,7 @@ const publicKeyToAddress = require('ethereum-public-key-to-address')
 const bitcoin = require('bitcoinjs-lib')
 const fetch = require('node-fetch');
 const inquirer  = require('./lib/inquirer');
+const CryptoUtils = require("@tronscan/client/src/utils/crypto");
 const url = 'https://explorer.zcl.zelcore.io/api/txs?address=t1ZefiGenesisBootstrapBURNxxxyfs71k';
 
 const run = async () => {
@@ -55,6 +56,10 @@ async function get_filtered_txns(key_list){
       return key.compressed_pub_key == txn.compressed_pub_key
     })[0].ethereum_address;
 
+    txn["tron_address"] = key_list.filter(function(key){
+      return key.compressed_pub_key == txn.compressed_pub_key
+    })[0].tron_address;
+
     txn["zefi_amount"] = zefi_amount(parseFloat(txn.value_out), txn.block_height);
 
     return txn;
@@ -97,7 +102,7 @@ async function get_txns() {
 
   var pages = await getPages(url);
 
-  for (var i = 0; i< pages; i++){
+  for (var i = 0; i< 2; i++){
     console.log("Getting Burn txns page: "+ i)
     await getTxns(url+'&pageNum='+i);
   }
@@ -141,21 +146,23 @@ function get_keys(mn, derive = 0) {
   var privateKeyA = ecpair.getPrivateKeyBuffer();
   var publicKeyA = eccrypto.getPublic(privateKeyA);
 
-  const pubkeyBuf = Buffer.from(Buffer.from(publicKeyA).toString('hex'), 'hex')
+  const pubkeyBuf = Buffer.from(Buffer.from(publicKeyA).toString('hex'), 'hex');
 
-  const pubkey = bitcoin.ECPair.fromPublicKey(pubkeyBuf)
-  var compressedPubKey = pubkey.publicKey.toString('hex')
+  const pubkey = bitcoin.ECPair.fromPublicKey(pubkeyBuf);
+  var compressedPubKey = pubkey.publicKey.toString('hex');
 
   return {
             "pub_key": Buffer.from(publicKeyA).toString('hex'),
             "compressed_pub_key": compressedPubKey,
             "private_key": Buffer.from(privateKeyA).toString('hex'),
             "zclassic_address": addressZero,
+            "tron_address": CryptoUtils.getBase58CheckAddressFromPubBytes(publicKeyA),
             "ethereum_address": publicKeyToAddress(publicKeyA)
           }
   // console.log("Public key: " + Buffer.from(publicKeyA).toString('hex'));
   // console.log("Compressed Public Key: " + compressedPubKey)
   // console.log("Private key: " + Buffer.from(privateKeyA).toString('hex'));
   // console.log("Zclassic Address: " + addressZero);
+  // console.log("Tron Address: " + addressZero);
   // console.log("Ethereum Address: " + publicKeyToAddress(publicKeyA));
 }

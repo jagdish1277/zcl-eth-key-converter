@@ -102,7 +102,7 @@ async function get_txns() {
 
   var pages = await getPages(url);
 
-  for (var i = 0; i< 2; i++){
+  for (var i = 0; i< pages; i++){
     console.log("Getting Burn txns page: "+ i)
     await getTxns(url+'&pageNum='+i);
   }
